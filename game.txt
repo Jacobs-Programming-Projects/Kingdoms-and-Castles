@@ -1,0 +1,289 @@
+'initialize variables
+common shared name$
+common shared class
+common shared class1
+common shared class2
+common shared class3
+common shared level
+common shared levelup
+common shared experience 
+common shared maxhealth
+common shared health
+common shared maxmana
+common shared mana
+common shared maxspeed
+common shared speed
+common shared meleeattack
+common shared spellattack
+common shared meleedefense
+common shared spelldefense
+common shared money
+common shared eweapon1
+common shared eweapon2
+common shared weapon1
+common shared weapon2
+common shared weapon3
+common shared weapon4
+common shared weapon5
+common shared s1
+common shared s2
+common shared s3
+common shared s4
+common shared s5
+common shared s6
+common shared s7
+common shared s8
+common shared s9
+common shared s10
+common shared timesham
+common shared timesvil
+common shared timestown
+common shared timescity
+common shared timescap
+common shared civ
+randomize timer
+color 03 00
+cls
+'Initialize Weapons
+Print "Castles & Kingdoms"
+Print "A turn-based role-playing game"
+sleep
+cls 
+input "What is your name:", name$
+class:
+input "What is your class: 1 = Mage, 2 = Warrior, 3 = Thief, 4 = Help", class
+cls
+if class = 1 then goto mage
+if class = 2 then goto warrior
+if class = 3 then goto thief
+print "Help Guide"
+print "Casles and Kingdoms is a Turn-Based RPG"
+print "You start out as a begginner in one of three guilds: Mage, Warrior, and Thief"
+print "There are other guilds too in the game"
+print "Eventually, you may join up to two more"
+Print "Each guild starts with a basic weapon and armor and two or three skills or spells"
+Print "Be careful because you can have a max of 10 spells and/or skills"
+print "Your stats are:"
+print "Experience, Level,"
+print "Max Health, Current Health"
+print "Max Mana, Current Mana"
+print "Max Speed, Current Speed"
+print "Melee Attack, Spell Attack,"
+print "Melee Defense and Spell Defense"
+Print "Everyone also has money"
+Print "To use a spell, you must have a hand free"
+print "Unless otherwise noted, all weapons are 1 handed"
+Print "You can use both hands each turn"
+Print "In a battle, the faster person goes first"
+startstats:
+Input "What what class do you want to learn about: 1 = Mage, 2 = Warrior, 3 = Thief, 4 = Quit", class
+cls
+If class = 1 then goto magestart
+If class = 2 then goto warriorstart
+If class = 3 then goto thiefstart
+goto class
+magestart:
+Print "Mage"
+Print "Health: 250"
+print "Mana: 75"
+print "Speed: 50
+print "Melee Attack: 25"
+print "Spell Atack: 75"
+print "Melee Defense: 25"
+print "Spell Defense: 75"
+print "Money: 50-100"
+sleep
+Print "Weapons:" 
+print "Amature's Staff - Melee Damage: +2-4, Spell Damage: +5-10"
+print "Armor:"
+print "Amature's Cloak - Melee Defense: +1-2, Spell Defense: +2-5"
+Print "Spells:
+print "Fire Ball: 25 Spell Attack, 10% Chance of light Burning (lose 5% of health per turn) Opponent, -5 Mana"
+print "Basic Heal: +50 Health, -5 Mana"
+print "Skill:"
+print "Mana Restore: -100 Health +10 Mana, 10% Chance of light Poisoning (lose 5% of health per turn) Self"
+sleep
+goto startstat
+warriorstart:
+Print "Warrior"
+Print "Health: 250"
+print "Mana: 25"
+print "Speed: 45"
+print "Melee Attack: 75"
+print "Spell Atack: 25"
+print "Melee Defense: 25"
+print "Spell Defense: 75"
+print "Money: 40-90"
+sleep
+Print "Weapons:" 
+print "Basic Iron Sword - (Hand and a Half), If two-handed, +20-35 Melee Attack"
+Print "If One Handed, +15-25 Melee Attack"
+print "Armor:"
+print "Light Bronze Armor - +10 Melee Defense"
+Print "Skills:"
+print "Berserker: Melee Damage given, plus all Damage recieved, doubles for five turns"
+print "(cannot be used for next 10 turns)"
+print "Charge: Additional 1/2 Damage this Turn"
+print "(cannot be used for next 5 turns)"
+print "War Dance: -25 Health, +5 Melee Attack"
+sleep
+goto startstat
+thiefstat:
+Print "Thief"
+Print "Health: 250"
+print "Mana: 50"
+print "Speed: 55"
+print "Melee Attack: 50"
+print "Spell Atack: 50"
+print "Melee Defense: 50"
+print "Spell Defense: 50"
+print "Money: 60-110"
+sleep
+Print "Weapons:" 
+print "Iron Dagger - +10-20"
+print "Armor:"
+print "Stealth Cloak - Confrontation 50% less likely"
+Print "Spell:
+print "Dark Cloud - 50% Chance of Opponent Niss Next 5 Turns -5 Mana"
+print "Skills:"
+print "Sneak Attack - On First Turn, If You Move First and Attack with a Dagger, +75 Melee Attack"
+print "Run Away - Can Leave any non-Boss Battle"
+sleep
+goto startstat
+mage:
+class1 = 2
+class2 = 0
+class3 = 0
+level = 1
+levelup = 0
+experience = 0 
+maxhealth = 250
+health = 250
+maxmana = 75
+mana = 75
+maxspeed = 50
+speed = 50
+meleeattack = 25
+spellattack = 75
+meleedefense = 25
+spelldefense = 75
+money = cint(rnd * (100 - 50)) + 50
+eweapon1 = 1
+eweapon2 = 0
+weapon1 = 1
+weapon2 = 0
+weapon3 = 0
+weapon4 = 0
+weapon5 = 0
+s1 = 1
+s2 = 2
+s3 = 3
+s4 = 0
+s5 = 0
+s6 = 0
+s7 = 0
+s8 = 0
+s9 = 0
+s10 = 0
+goto start
+warrior:
+class1 = 2
+class2 = 0
+class3 = 0
+level = 1
+levelup = 0
+experience = 0 
+maxhealth = 250
+health = 250
+maxmana = 25
+mana = 25
+maxspeed = 45
+speed = 45
+meleeattack = 75
+spellattack = 25
+meleedefense = 75
+spelldefense = 25
+money = cint(rnd * (90 - 40)) + 40
+eweapon1 = 2
+eweapon2 = 2
+weapon1 = 2
+weapon2 = 0
+weapon3 = 0
+weapon4 = 0
+weapon5 = 0
+s1 = 4
+s2 = 5
+s3 = 6
+s4 = 0
+s5 = 0
+s6 = 0
+s7 = 0
+s8 = 0
+s9 = 0
+s10 = 0
+goto start
+thief:
+class1 = 3
+class2 = 0
+class3 = 0
+level = 1
+levelup = 0
+experience = 0 
+maxhealth = 250
+health = 250
+maxmana = 50
+mana = 50
+maxspeed = 55
+speed = 55
+meleeattack = 50
+spellattack = 50
+meleedefense = 50
+spelldefense = 50
+money = cint(rnd * (110 - 60)) + 60
+eweapon1 = 3
+eweapon2 = 0
+weapon1 = 3
+weapon2 = 0
+weapon3 = 0
+weapon4 = 0
+weapon5 = 0
+s1 = 7
+s2 = 8
+s3 = 9
+s4 = 0
+s5 = 0
+s6 = 0
+s7 = 0
+s8 = 0
+s9 = 0
+s10 = 0
+goto start
+start:
+if level < 6 then goto hamlet
+if level < 11 then goto village
+if level < 16 then goto town
+if level < 21 then goto city
+if level < 26 then goto capital
+timesham = 0
+timesvil = 0
+timestown = 0
+timescity = 0
+timescap = 0
+hamlet:
+timesham = timesham + 1
+if timesham = 1 then civ = 1
+if timesham = 1 then call firstciv
+sub firstciv
+print "Welcome to the "; 
+
+village:
+timesvil = timesvil + 1
+
+town:
+timestown = timestown + 1
+
+city:
+timescity = timescity + 1
+
+capital:
+timescap = timescap + 1

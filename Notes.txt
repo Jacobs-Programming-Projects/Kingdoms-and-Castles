@@ -1,0 +1,7 @@
+notes:
+randomnumber = cint(rnd * (max - min)) + min
+' = comment
+print ""; var
+common shared (to share a var)
+label:
+goto label

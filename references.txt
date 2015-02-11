@@ -1,0 +1,34 @@
+classes:
+0 = none
+1 = mage
+2 = warrior
+3 = thief
+
+Weapons:
+0 = hand - -25 melee damage
+1 = Amature's Staff - Melee Damage: +5-10, Spell Damage: +10-15
+2 = Basic Iron Sword - (Hand and a Half), If two-handed, +20-35 Melee Attack, If One Handed, +15-25 Melee Attack
+3 = Iron Dagger - +15-25
+4 = Knife +10-20
+5 = Claymore (2-handed) - +50-75 melee attack
+6 = Yew Bow - 1 Handed +50-75 Melee attack, lose 1 arrow per use
+
+
+Armors:
+1 = Amature's Cloak - Melee Defense: +1-2, Spell Defense: +2-5
+2 = Light Bronze Armor - +10 Melee Defense
+3 = Stealth Cloak - Confrontation 50% less likely
+4 = Coat of Adamant - +75 Melee Defense
+
+Skills & Spells:
+0 = None
+1 = Fire Ball: +25 Spell Attack, Chance of light Burning (lose 5% of health per turn) Opponent, -5 Mana
+2 = Basic Heal: +50 Health, -5 Mana
+3 = Mana Restore: -100 Health +10 Mana, Chance of light Poisoning (lose 5% of health per turn) Self
+4 = Berserker: Melee Damage given, plus all Damage recieved, doubles for five turns (cannot be used for next 10 turns)
+5 = Charge: Additional 1/2 Damage this Turn, (cannot be used for next 5 turns)
+6 = War Dance: -25 Health, +5 Melee Attack
+7 = Dark Cloud - 50% Chance of Opponent Niss Next 5 Turns -5 Mana
+8 = Sneak Attack - On First Turn, If You Move First and Attack with a Dagger, +75 Melee Attack
+9 = Run Away - Can Leave any non-Boss Battle
+10 = throw knife - +50, damage cannot use knife for rest of mattle
