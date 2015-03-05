@@ -14,10 +14,12 @@ COMMON SHARED mana
 COMMON SHARED class2r
 COMMON SHARED switch
 COMMON SHARED drop$
+COMMON SHARED waytodie
 COMMON SHARED mageq1
 COMMON SHARED thiefq1
 COMMON SHARED warq1
 COMMON SHARED add
+COMMON SHARED annoy
 COMMON SHARED maxspeed
 COMMON SHARED speed
 COMMON SHARED wander1
@@ -80,7 +82,6 @@ COMMON SHARED timescap
 COMMON SHARED civ
 COMMON SHARED civilization$
 COMMON SHARED quest
-COMMON SHARED q1
 COMMON SHARED cost
 COMMON SHARED questscompleted
 COMMON SHARED talkto
@@ -88,9 +89,21 @@ COMMON SHARED answer$
 COMMON SHARED totalexperience
 COMMON SHARED rand1
 COMMON SHARED rand2
+COMMON SHARED start$
+COMMON SHARED load
+COMMON SHARED load$
+COMMON SHARED loadfile$
+COMMON SHARED save
+COMMON SHARED save$
+COMMON SHARED savefile$
+COMMON SHARED fileexist
+COMMON SHARED wipe
+COMMON SHARED q1
+COMMON SHARED c1
+COMMON SHARED filenumber
+COMMON SHARED filenumber$
 RANDOMIZE TIMER
 COLOR 2, 0
-_FULLSCREEN
 class2r = 0
 CLS
 SLEEP
@@ -115,7 +128,21 @@ PRINT "A turn-based role-playing game"
 PRINT "(Use space for continue and enter for input)"
 SLEEP
 CLS
+startloop:
+INPUT "Would you like to (L)oad, or start (N)ew game: ", start$
+start$ = UCASE$(start$)
+IF start$ = "L" OR start$ = "LOAD" THEN
+    CALL loadselect
+    GOTO start
+ELSEIF start$ = "N" OR start$ = "NEW" THEN
+    GOTO newgame
+ELSE
+    GOTO startloop
+END IF
+newgame:
+CLS
 INPUT "What is your name: ", name$
+load = 0
 class:
 INPUT "What is your class: 1 = Mage, 2 = Warrior, 3 = Thief, 4 = Help ", class
 CLS
@@ -367,15 +394,17 @@ PRINT "2 = View Your Stats & Inventory"
 PRINT "3 = Visit the Market"
 PRINT "4 = Visit the Guild"
 PRINT "5 = Go Wandering"
-IF q1 = 1 THEN PRINT "6 = Rank up in a civilization"
+PRINT "6 = Save Game"
+IF q1 = 1 THEN PRINT "7 = Rank up in a civilization"
 INPUT ": ", todo
 IF todo = 1 THEN CALL talk
 IF todo = 2 THEN CALL inventory
 IF todo = 3 THEN CALL market
 IF todo = 4 THEN CALL guilds
 IF todo = 5 THEN CALL Woods
-IF todo = 6 AND q1 = 1 THEN CALL continued
-IF todo = 7 THEN CALL die
+IF todo = 6 THEN CALL saveselect
+IF todo = 7 AND q1 = 1 THEN CALL continued
+IF todo = 8 THEN CALL die
 GOTO inham
 village:
 
@@ -929,9 +958,13 @@ SLEEP
 END SUB
 
 SUB die
-PRINT "You have Died"
-PLAY "MF ML L2 C < A > E1"
-SLEEP
+IF waytodie = 1 THEN
+    PRINT "You have starved to death"
+    PLAY "MF ML L2 C < A > E1"
+ELSE
+    PRINT "You have Died"
+    PLAY "MF ML L2 C < A > E1"
+END IF
 END
 END SUB
 
@@ -998,41 +1031,1158 @@ endofwoods:
 END SUB
 
 SUB cave
-PRINT "The Fire Elemental is in in front of you"
-SLEEP 1
-PRINT "He looks at you and starts to laugh"
-SLEEP 1
-PRINT "Then a look of sheer terror crosses his face"
-SLEEP 1
-PRINT "He recoils,"
-SLEEP 1
-PRINT "Trips over a chest,"
-SLEEP 1
-PRINT "And falls into a puddle of water."
-SLEEP 1
-PRINT "His flame is put out, so he dies"
-SLEEP 5
-PRINT "Quest 1: Completed"
-q1 = 1
-rand1 = CINT(RND * (2 - 1)) + 1
-IF rand1 = 1 THEN
-    PLAY "mb t136 mn o3 l8 ddgfe-dc o2 b-ag o3 d2. l12 ddd l8 g4 p4 p2 p2"
+IF q1 = 0 THEN
+    PRINT "The Fire Elemental is in in front of you"
+    SLEEP 1
+    PRINT "He looks at you and starts to laugh"
+    SLEEP 1
+    PRINT "Then a look of sheer terror crosses his face"
+    SLEEP 1
+    PRINT "He recoils,"
+    SLEEP 1
+    PRINT "Trips over a chest,"
+    SLEEP 1
+    PRINT "And falls into a puddle of water."
+    SLEEP 1
+    PRINT "His flame is put out, so he dies"
+    SLEEP 5
+    PRINT "Quest 1: Completed"
+    q1 = 1
+    rand1 = CINT(RND * (2 - 1)) + 1
+    IF rand1 = 1 THEN
+        PLAY "mb t136 mn o3 l8 ddgfe-dc o2 b-ag o3 d2. l12 ddd l8 g4 p4 p2 p2"
+    END IF
+    IF rand1 = 2 THEN
+        PLAY "MF MN T180"
+        PLAY "O3 C8.C16 F8 C8 F8 A8 F4 F8.F16 A8 F8 A8 >C8 < A4 F8.A16 > C4"
+        PLAY "< A8.F16 C4 C8.C16 F4 F8.F16 F4"
+    END IF
+    q1end:
+    INPUT "Would you like to open the chest or return to the hamlet: ", answer$
+    IF answer$ = "open" OR answer$ = "Open" THEN
+        add = 6
+        CALL addweapon
+        c1 = 1
+        GOTO q1realend
+    END IF
+    IF answer$ = "return" OR answer$ = "Return" OR answer$ = "leave" OR answer$ = "Leave" THEN
+        GOTO q1realend
+    END IF
+    GOTO q1end
+ELSE
+    IF c1 = 0 THEN
+        PRINT "There is a cave with a chest in it."
+        INPUT "Would you like to open the chest or return to the hamlet: ", answer$
+        IF answer$ = "open" OR answer$ = "Open" THEN
+            add = 6
+            CALL addweapon
+            c1 = 1
+            GOTO q1realend
+        END IF
+        IF answer$ = "return" OR answer$ = "Return" OR answer$ = "leave" OR answer$ = "Leave" THEN
+            GOTO q1realend
+        END IF
+    ELSE
+        annoy = 0
+        PRINT "You are in a cave with an empty chest"
+        annoy1:
+        INPUT "Would you like to return to the hamlet: (Y/N) ", answer$
+        answer$ = UCASE$(answer$)
+        IF answer$ = "Y" OR answer$ = "YES" THEN
+            GOTO q1realend
+        ELSE
+            annoy = annoy + 1
+            IF annoy < 3 THEN
+                PRINT "You can't do anything here"
+            ELSEIF annoy < 5 THEN
+                PRINT "You really can't do anything here"
+            ELSEIF annoy < 7 THEN
+                PRINT "You can't do anything here and you are about to starve"
+            ELSEIF annoy = 10 THEN
+                waytodie = 1
+            END IF
+        END IF
+        GOTO annoy1
+        q1realend:
+    END IF
 END IF
-IF rand1 = 2 THEN
-    PLAY "MF MN T180"
-    PLAY "O3 C8.C16 F8 C8 F8 A8 F4 F8.F16 A8 F8 A8 >C8 < A4 F8.A16 > C4"
-    PLAY "< A8.F16 C4 C8.C16 F4 F8.F16 F4"
+END SUB
+
+SUB loadselect
+loadloop:
+INPUT "Which game would you like to load: (1-5)", load
+load$ = STR$(load)
+load$ = LTRIM$(load$)
+loadfile$ = "k&c001" + load$ + ".dat"
+IF load < 6 AND load > 0 THEN
+    fileexist = FileExists%(loadfile$)
+    IF fileexist = 1 THEN
+        CALL loadgame
+    ELSE
+        PRINT "File Does Not Exist"
+        GOTO loadloop
+        SLEEP
+    END IF
+ELSE
+    PRINT "Please type a number 1-5"
+    GOTO loadloop
 END IF
-q1end:
-INPUT "Would you like to open the chest or return to the hamlet: ", answer$
-IF answer$ = "open" OR answer$ = "Open" THEN
-    add = 6
-    CALL addweapon
-    GOTO q1realend
+END SUB
+
+SUB saveselect
+saveloop:
+IF save = 0 THEN
+    PRINT "Which game would you like to save: (1-5) "
+    INPUT "Input 6 to exit ", save
+    save$ = STR$(save)
+    save$ = LTRIM$(save$)
+    savefile$ = "k&c" + save$ + ".dat"
+    IF save < 7 AND save > 0 THEN
+        IF save = 6 THEN
+            GOTO quit
+        ELSE
+            fileexist = FileExists%(savefile$)
+            IF fileexist = 0 THEN
+                CALL savegame
+            ELSE
+                PRINT "File already exists"
+                PRINT "Would you like to override: "
+                INPUT "0 = No, 1 = yes: ", answer
+                IF answer = 1 THEN
+                    CALL savegame
+                ELSE
+                    GOTO saveloop
+                    SLEEP
+                END IF
+            END IF
+        END IF
+    ELSE
+        PRINT "Please type a number 1-5"
+        GOTO saveloop
+    END IF
+ELSE
+    fileexist = FileExists%(savefile$)
+    IF fileexist = 0 THEN
+        CALL savegame
+    ELSE
+        PRINT "File already exists"
+        PRINT "Would you like to override: "
+        INPUT "0 = No, 1 = yes: ", answer
+        IF answer = 1 THEN
+            CALL savegame
+        ELSE
+            GOTO saveloop
+            SLEEP
+        END IF
+    END IF
 END IF
-IF answer$ = "return" OR answer$ = "Return" OR answer$ = "leave" OR answer$ = "Leave" THEN
-    GOTO q1realend
+
+quit:
+END SUB
+
+
+
+FUNCTION FileExists% (FileName$)
+FileNum% = FREEFILE
+OPEN FileName$ FOR BINARY AS FileNum%
+FileLength% = LOF(FileNum%)
+CLOSE FileNum%
+IF FileLength% = 0 THEN
+    KILL FileName$
+    FileExists% = 0
+ELSE
+    FileExists% = 1
 END IF
-GOTO q1end
-q1realend:
+END FUNCTION
+
+SUB savegame
+filenumber = 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, specificbuy$
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, name$
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, class
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, class1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, class2
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, level
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, levelup
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, experience
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, maxhealth
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, health
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, maxmana
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, mana
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, levelup
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, class2r
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, switch
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, drop$
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, waytodie
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, mageq1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, thiefq1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, warq1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, add
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, annoy
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, maxspeed
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, speed
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, wander1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, meleeattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, tempmeleeattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, tempmeleedefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, tempspellattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, tempspelldefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, spellattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, meleedefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, spelldefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, omaxhealth
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, ohealth
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, omaxmana
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, omana
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, omaxspeed
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, ospeed
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, omeleeattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, otempmeleeattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, otempmeleedefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, otempspellattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, otempspelldefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, ospellattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, omeleedefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, ospelldefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, money
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, buy
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, eweapon1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, eweapon2
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, weapon1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, weapon2
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, weapon3
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, weapon4
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, weapon5
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, earmor
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, armor1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, armor2
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, s1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, s2
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, s3
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, s4
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, s5
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, s6
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, s7
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, s8
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, s9
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, s10
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, os1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, answer
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, os2
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, os3
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, oarmor
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, oweapon1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, oweapon2
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, timesham
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, timesvil
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, timestown
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, timescity
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, timescap
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, civ
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, civilization$
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, quest
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, cost
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, questscompleted
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, talkto
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, answer$
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, totalexperience
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, rand1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, rand2
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, start$
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, fileexist
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, wipe
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, q1
+CLOSE #1
+filenumber = filenumber + 1
+CALL savename
+OPEN savefile$ FOR OUTPUT AS #1
+PRINT #1, c1
+CLOSE #1
+filenumber = filenumber + 1
+END SUB
+
+SUB loadgame
+filenumber = 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, specificbuy$
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, name$
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, class
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, class1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, class2
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, level
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, levelup
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, experience
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, maxhealth
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, health
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, maxmana
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, mana
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, levelup
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, class2r
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, switch
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, drop$
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, waytodie
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, mageq1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, thiefq1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, warq1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, add
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, annoy
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, maxspeed
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, speed
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, wander1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, meleeattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, tempmeleeattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, tempmeleedefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, tempspellattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, tempspelldefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, spellattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, meleedefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, spelldefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, omaxhealth
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, ohealth
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, omaxmana
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, omana
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, omaxspeed
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, ospeed
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, omeleeattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, otempmeleeattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, otempmeleedefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, otempspellattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, otempspelldefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, ospellattack
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, omeleedefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, ospelldefense
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, money
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, buy
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, eweapon1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, eweapon2
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, weapon1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, weapon2
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, weapon3
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, weapon4
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, weapon5
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, earmor
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, armor1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, armor2
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, s1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, s2
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, s3
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, s4
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, s5
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, s6
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, s7
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, s8
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, s9
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, s10
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, os1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, answer
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, os2
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, os3
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, oarmor
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, oweapon1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, oweapon2
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, timesham
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, timesvil
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, timestown
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, timescity
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, timescap
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, civ
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, civilization$
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, quest
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, cost
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, questscompleted
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, talkto
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, answer$
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, totalexperience
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, rand1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, rand2
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, start$
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, fileexist
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, wipe
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, q1
+CLOSE #1
+filenumber = filenumber + 1
+CALL loadname
+OPEN loadfile$ FOR INPUT AS #1
+INPUT #1, c1
+CLOSE #1
+filenumber = filenumber + 1
+END SUB
+
+SUB loadname
+load$ = LTRIM$(STR$(load))
+filenumber$ = LTRIM$(STR$(filenumber))
+IF filenumber < 10 THEN
+    loadfile$ = "k&c00" + filenumber$ + load$ + ".dat"
+ELSEIF filenumber < 100 THEN
+    loadfile$ = "k&c0" + filenumber$ + load$ + ".dat"
+ELSEIF filenumber < 1000 THEN
+    loadfile$ = "k&c0" + filenumber$ + load$ + ".dat"
+END IF
+END SUB
+
+SUB savename
+save$ = LTRIM$(STR$(save))
+filenumber$ = LTRIM$(STR$(filenumber))
+IF filenumber < 10 THEN
+    savefile$ = "k&c00" + filenumber$ + save$ + ".dat"
+ELSEIF filenumber < 100 THEN
+    savefile$ = "k&c0" + filenumber$ + save$ + ".dat"
+ELSEIF filenumber < 1000 THEN
+    savefile$ = "k&c0" + filenumber$ + save$ + ".dat"
+END IF
 END SUB

@@ -5,3 +5,52 @@ print ""; var
 common shared (to share a var)
 label:
 goto label
+
+File Exist Function
+FUNCTION FileExists% (FileName$)
+FileNum% = FREEFILE
+OPEN FileName$ FOR BINARY AS FileNum%
+FileLength% = LOF(FileNum%)
+CLOSE FileNum%
+IF FileLength% = 0 THEN
+  KILL FileName$
+  FileExists% = 0
+ELSE
+  FileExists% = 1
+END IF
+END FUNCTION
+
+fullscreen = _FULLSCREEN
+
+integer to string
+integer$ = ltrim$(str$(integer))
+
+Uppercase string
+UCASE$(string$)
+
+print random statement
+RANDOMIZE TIMER
+DATA “You are a super dunder head.”
+DATA “Well, I don’t care about that.”
+DATA “Oh really? You are so wrong.”
+DATA “Can I talk to a smart person, please?”
+DATA “I think you are special. Not!”
+DATA “How dare you speak to me in that tone!”
+DATA “How does that make you feel?”
+DATA “I’m not sure what to say.”
+random number generator
+RESTORE
+FOR n = 1 TO n
+READ answer$
+NEXT
+PRINT answer$
+
+write var to file
+OPEN "testfile.dat" FOR OUTPUT AS #1
+PRINT #1, "Hello World!"
+CLOSE #1
+
+read var from file
+OPEN "testfile.dat" FOR INPUT AS #1
+INPUT #1, text$
+CLOSE #1
